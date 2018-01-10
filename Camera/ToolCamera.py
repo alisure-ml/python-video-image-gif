@@ -1,3 +1,4 @@
+import numpy as np
 import cv2
 
 
@@ -49,7 +50,7 @@ def save_camera_demo():
     cap = cv2.VideoCapture(0)
 
     four_cc = cv2.VideoWriter_fourcc(*"XVID")
-    out = cv2.VideoWriter("output.mp4", four_cc, 20.0, (640, 480))
+    out = cv2.VideoWriter("output.avi", four_cc, 20.0, (640, 480))
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -70,4 +71,65 @@ def save_camera_demo():
     pass
 
 
+# 视频上画框
+def draw_camera_demo():
+    cap = cv2.VideoCapture(0)
 
+    cap.set(3, 640)
+    cap.set(4, 480)
+
+    # 检查是否初始化成功，循环读取每一帧
+    while cap.isOpened():
+        ret, frame = cap.read()
+        # 摄像头左右反转，反转回来
+        frame = cv2.flip(frame, 1)
+
+        # 画矩形
+        cv2.rectangle(frame, (100, 100), (300, 300), (255, 0, 0), 3)
+
+        cv2.imshow("capture", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pass
+
+
+# 视频加掩码
+def mask_camera_demo():
+
+    cap = cv2.VideoCapture(0)
+
+    cap.set(3, 640)
+    cap.set(4, 480)
+
+    # 检查是否初始化成功，循环读取每一帧
+    while cap.isOpened():
+        ret, frame = cap.read()
+        # 摄像头左右反转，反转回来
+        frame = cv2.flip(frame, 1)
+
+        # 创建一个掩膜为了后面绘制
+        mask = np.zeros_like(frame)
+
+        # 画矩形
+        cv2.rectangle(mask, (100, 100), (300, 300), (255, 0, 0), 3)
+
+        frame = cv2.add(frame, mask)
+
+        cv2.imshow("capture", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pass
+
+
+if __name__ == '__main__':
+    mask_camera_demo()
+
+    pass
