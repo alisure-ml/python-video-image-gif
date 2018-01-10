@@ -25,8 +25,6 @@ def video_to_images(video_filename, result_path=None):
         # save as a JPEG file
         cv2.imwrite("{}/{}.jpg".format(result_path, i), image)
 
-        print(cv2.CV_IMWRITE_PXM_BINARY)
-
         # exit if Escape is hit
         if cv2.waitKey(10) == 27:
             break
