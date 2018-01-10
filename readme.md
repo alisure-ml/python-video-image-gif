@@ -1,10 +1,22 @@
-## Python GIF
-> 2017-06-20 02:55:02
+### Python 和图片、视频相关的
 
-### 限制条件
-* MD...必须2.x才可以
-* 目前，图片大小必须相同
+### gif
 
-### 需要安装
-* `import Pillow`
-* `import images2gif-Pillow`
+* `ToolGif.py`
+
+    将图片转成gif动画
+
+* [`study_pil.py`](https://github.com/alisure-ml/python-study/blob/master/temp/study_pil.py)
+
+    从gif动画中提取图片
+
+
+### video
+
+* `ToolVideo.py`
+    
+    1. 提取视频中的帧
+    
+    2. 将图片转化成视频
+
+
