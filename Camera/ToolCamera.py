@@ -100,7 +100,7 @@ def draw_camera_demo():
 # 视频加掩码
 def mask_camera_demo():
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     cap.set(3, 640)
     cap.set(4, 480)
@@ -130,6 +130,6 @@ def mask_camera_demo():
 
 
 if __name__ == '__main__':
-    mask_camera_demo()
+    open_camera_demo()
 
     pass
