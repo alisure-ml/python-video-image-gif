@@ -49,7 +49,8 @@ def open_camera_demo():
 def save_camera_demo():
     cap = cv2.VideoCapture(0)
 
-    four_cc = cv2.VideoWriter_fourcc(*"XVID")
+    four_cc = cv2.VideoWriter_fourcc(*"XVID")  # avi
+    # four_cc = cv2.VideoWriter_fourcc(*"mp4v")  # mp4
     out = cv2.VideoWriter("output.avi", four_cc, 20.0, (640, 480))
 
     while cap.isOpened():
