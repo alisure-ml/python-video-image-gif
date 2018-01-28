@@ -13,6 +13,8 @@ class AVA(object):
 
         # 读取注解
         self.video_annotations = self._read_annotations_from_csv(annotations_filename)
+        # 合并注解
+        self.video_annotations = self._deal_annotations()
 
         # 行为名称
         self.action_list_file = action_list_file
@@ -50,40 +52,111 @@ class AVA(object):
                 rows.append(row)
         return rows
 
-    # 增加mask
-    def _add_mask_in_image(self, image, left_top, bottom_right, action_id):
+    # 处理注解：和并
+    def _deal_annotations(self):
+        # 同一时间多个动作
+        now_time = 0
+        video_annotations = []
+        now_annotations = []
+        for annotation in self.video_annotations:
+            if now_time != int(annotation[1]):
+                now_time = int(annotation[1])
+                if len(now_annotations) > 0:
+                    video_annotations.append(now_annotations)
+                    now_annotations = []
+                pass
+            now_annotations.append(annotation)
+            pass
+        # 将最后一个保存
+        if len(now_annotations) > 0:
+            video_annotations.append(now_annotations)
+            pass
+
+        # 同一时间同一目标的多个动作
+        video_annotations2 = []
+        for annotations in video_annotations:
+            # 存放合并后的注解框
+            now_annotations2 = []
+            point = None
+            label_id = []
+            now_annotation = []
+            for annotation in annotations:
+                # 需要检测的值
+                tem_point = "{}{}{}{}".format(annotation[2], annotation[3], annotation[4], annotation[5])
+                if point is None or point not in tem_point:  # 新的注解框
+                    point = tem_point
+                    if len(label_id) > 0:  # 保存合并后的注解框
+                        now_annotation.append(label_id)
+                        now_annotations2.append(now_annotation)
+                        label_id = []
+                    pass
+                # 合并label_id
+                label_id.append(annotation[6])
+                # 此时的注解框
+                now_annotation = annotation[:-1]
+                pass
+            # 将最后一个保存
+            if len(label_id) > 0:  # 保存合并后的注解框
+                now_annotation.append(label_id)
+                now_annotations2.append(now_annotation)
+            video_annotations2.append(now_annotations2)
+            pass
+        return video_annotations2
+
+    # 增加masks
+    def _add_masks_in_image(self, image, left_tops, bottom_rights, action_ids):
         mask = np.zeros_like(image)
 
         # 画矩形
-        cv2.rectangle(mask, (left_top[0], left_top[1]), (bottom_right[0], bottom_right[1]), (0, 0, 255), thickness=2)
-        # 写字
-        cv2.putText(image, self._get_action_name_by_id(action_id), org=(left_top[0] + 10, left_top[1] + 30),
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 0, 0), thickness=2)
+        for index in range(len(left_tops)):
+            cv2.rectangle(mask, (left_tops[index][0], left_tops[index][1]),
+                          (bottom_rights[index][0], bottom_rights[index][1]), (0, 0, 255), thickness=2)
+            # 写字
+            action_names = [self._get_action_name_by_id(action_id) for action_id in action_ids[index]]
+            cv2.putText(image, "|".join(action_names), org=(left_tops[index][0] + 10, left_tops[index][1] + 30),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 0, 0), thickness=2)
+            pass
 
         image = cv2.add(image, mask)
         return image
 
     # 解析ava视频
-    def _video_from_ava(self):
+    def _video_from_ava(self, is_all_time=True):
+        # 大视频 1
+        large_video = cv2.VideoWriter("{}/{}.mp4".format(self.result_path, "all"), cv2.VideoWriter_fourcc(*"mp4v"),
+                                      self.speed_frame, (self.width, self.height))
+
         # 开始解析
-        for i, video_annotation in enumerate(self.video_annotations):
+        for i, now_video_annotations in enumerate(self.video_annotations):
             is_break = False
 
             # 解析
-            middle_time = float(video_annotation[1])
-            action_id = video_annotation[6]
+            middle_time = float(now_video_annotations[0][1])
 
             # 开始的帧和结束的帧,中间帧+-1.5S
             start_frame = int((middle_time - 1.5) * self.speed_frame)
-            start_mask_frame = int((middle_time - 0.5) * self.speed_frame)
-            end_mask_frame = int((middle_time + 0.5) * self.speed_frame)
             end_frame = int((middle_time + 1.5) * self.speed_frame)
             # 设置开始的帧
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+            # 设置标注的帧
+            if is_all_time:
+                start_mask_frame = start_frame
+                end_mask_frame = end_frame
+            else:
+                start_mask_frame = int((middle_time - 0.5) * self.speed_frame)
+                end_mask_frame = int((middle_time + 0.5) * self.speed_frame)
 
-            # 框的边界
-            left_top = [int(float(video_annotation[2]) * self.width), int(float(video_annotation[3]) * self.height)]
-            bottom_right = [int(float(video_annotation[4]) * self.width), int(float(video_annotation[5]) * self.height)]
+            # 框的边界和label
+            action_ids = []
+            left_tops = []
+            bottom_rights = []
+            for now_video_annotation in now_video_annotations:
+                action_ids.append(now_video_annotation[6])
+                left_tops.append([int(float(now_video_annotation[2]) * self.width),
+                                  int(float(now_video_annotation[3]) * self.height)])
+                bottom_rights.append([int(float(now_video_annotation[4]) * self.width),
+                                      int(float(now_video_annotation[5]) * self.height)])
+                pass
 
             # 存储帧
             video_frames = []
@@ -94,7 +167,7 @@ class AVA(object):
                 if ret:
                     # 画框
                     if start_mask_frame < now_frame < end_mask_frame:
-                        image = self._add_mask_in_image(image, left_top, bottom_right, action_id)
+                        image = self._add_masks_in_image(image, left_tops, bottom_rights, action_ids)
                     video_frames.append(image)
                     # exit if Escape is hit
                     if cv2.waitKey(10) == 27:
@@ -105,8 +178,11 @@ class AVA(object):
                 pass
 
             # 保存视频
-            self._images_to_video(video_frames, "{}/{}_{}_{}_{}.mp4".format(self.result_path, i, int(middle_time),
-                                                                            action_id, len(video_frames)))
+            self._images_to_video(video_frames, "{}/{}_{}_{}.mp4".format(self.result_path, i,
+                                                                         int(middle_time), len(video_frames)))
+            # 大视频 2
+            for video_frame in video_frames:
+                large_video.write(video_frame)
 
             # 打印信息
             if i % 1 == 0:
@@ -116,6 +192,9 @@ class AVA(object):
             if is_break:
                 break
             pass
+
+        # 大视频 3
+        large_video.release()
 
         cv2.destroyAllWindows()
         self.cap.release()
@@ -175,17 +254,16 @@ class AVA(object):
         return now_action["name"]
 
     # run
-    def run(self):
+    def run(self, is_all_time=True):
         print("wideo width:{},height:{},number:{},speed:{}".format(self.width, self.height,
                                                                    self.total_frame, self.speed_frame))
-
-        self._video_from_ava()
+        self._video_from_ava(is_all_time)
         pass
+
     pass
 
 
 if __name__ == "__main__":
-    ava = AVA(video_filename="data/zR725veL-DI.mp4",
-              annotations_filename="data/ava_test_v1.0.csv",
+    ava = AVA(video_filename="data/zR725veL-DI.mp4", annotations_filename="data/ava_test_v1.0.csv",
               result_path="result/zR725veL-DI")
-    ava.run()
+    ava.run(is_all_time=True)
