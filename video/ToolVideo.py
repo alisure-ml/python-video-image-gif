@@ -52,7 +52,7 @@ def images_to_video(video_folder, first_frame, last_frame, rep=5, result_filenam
     height, width, layers = img.shape
 
     # initiate the video with width, height and pfs = 25
-    video = cv2.VideoWriter(result_filename, -1, 25, (width, height))
+    video = cv2.VideoWriter(result_filename, cv2.VideoWriter_fourcc(*"XVID"), 25, (width, height))
 
     for i in range(last_frame - first_frame + 1):
         for j in range(rep):
@@ -72,5 +72,5 @@ def images_to_video(video_folder, first_frame, last_frame, rep=5, result_filenam
 
 if __name__ == "__main__":
 
-    video_to_images("test/test.mp4")
-    # images_to_video("test/test", 0, 105, 1)
+    # video_to_images("test/test.mp4")
+    images_to_video("../plt/bear/bottom", 0, 7, 5)
