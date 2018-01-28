@@ -20,7 +20,13 @@
     2. 将图片转化成视频
 
 
-### Camera
+### opencv
 
 * 和摄像头相关
+* 和opencv相关
+
+
+### plt
+
+* 使用matplotlib.pyplot展示动画
 
