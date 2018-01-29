@@ -53,7 +53,7 @@ class ToolGif:
         # 读取图片
         imgs = []
         for img_file in full_img_files:
-            imgs.append(Image.open(img_file))
+            imgs.append(Image.open(img_file).convert("RGB"))
 
         # 写入Gif
         images2gif.writeGif(self.__gif_name, imgs, repeat=self.__repeat, duration=self.__duration)
