@@ -21,13 +21,20 @@ class SortGif:
             return -1
         return 1
 
+    # 按照文件名称比较
+    @staticmethod
+    def compare_filename(x, y):
+        if x < y:
+            return -1
+        return 1
+
     pass
 
 
 class ToolGif:
 
     # 初始化
-    def __init__(self, source_dir, gif_name, sort=SortGif.compare_mtime, repeat=True, duration=0.2):
+    def __init__(self, source_dir, gif_name, sort=SortGif.compare_filename, repeat=True, duration=0.2):
         self.__source_dir = source_dir
         self.__gif_name = gif_name
         self.__repeat = repeat
