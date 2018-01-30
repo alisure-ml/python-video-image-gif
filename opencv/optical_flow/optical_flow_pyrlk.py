@@ -119,7 +119,8 @@ def optical_flow_from_camera():
 
 
 def optical_flow_from_camera_farneback():
-    cap = cv2.VideoCapture('demo.mp4')
+    # cap = cv2.VideoCapture('demo.mp4')
+    cap = cv2.VideoCapture(0)
 
     cap.set(3, 640)
     cap.set(4, 480)
