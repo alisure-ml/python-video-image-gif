@@ -88,6 +88,9 @@ def draw_camera_demo():
         # 画矩形
         cv2.rectangle(frame, (100, 100), (300, 300), (255, 0, 0), 3)
 
+        # 写字
+        cv2.putText(frame, "ALISURE", (100, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color=(255, 0, 0), thickness=1)
+
         cv2.imshow("capture", frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -118,6 +121,9 @@ def mask_camera_demo():
         # 画矩形
         cv2.rectangle(mask, (100, 100), (300, 300), (255, 0, 0), 3)
 
+        # 写字
+        cv2.putText(mask, "ALISURE", (100, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color=(255, 0, 0), thickness=1)
+
         frame = cv2.add(frame, mask)
 
         cv2.imshow("capture", frame)
@@ -130,7 +136,35 @@ def mask_camera_demo():
     pass
 
 
+# 在此处理数据
+def deal_frame(frame):
+    return frame
+
+
+# 功能包装
+def camera_wrap_demo(run_func=deal_frame, prop_id=0, size=(300, 300)):
+    cap = cv2.VideoCapture(prop_id)
+    cap.set(3, size[0])
+    cap.set(4, size[1])
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if ret:
+            frame = cv2.flip(frame, 1)
+            cv2.imshow("frame", run_func(frame))
+
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+        else:
+            break
+        pass
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pass
+
+
 if __name__ == '__main__':
-    open_camera_demo()
+    camera_wrap_demo()
 
     pass
