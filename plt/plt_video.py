@@ -26,6 +26,7 @@ def show_video(image_names, mask_names, mask_color=list([255, 0, 0]), opacity=0.
         image_mask[:, :, 1] = (1 - mask) * image[:, :, 1] + mask * (opacity * mask_color[1] + (1 - opacity) * image[:, :, 1])
         image_mask[:, :, 2] = (1 - mask) * image[:, :, 2] + mask * (opacity * mask_color[2] + (1 - opacity) * image[:, :, 2])
         # 显示图片
+        plt.text(0, -10, "this is text ...", fontsize=15)
         plt.imshow(image_mask.astype(np.uint8))
         # 关闭坐标轴
         plt.axis('off')
