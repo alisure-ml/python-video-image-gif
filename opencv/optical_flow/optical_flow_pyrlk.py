@@ -118,8 +118,7 @@ def optical_flow_from_camera():
     pass
 
 
-def optical_flow_from_camera_farneback():
-    # cap = cv2.VideoCapture('demo.mp4')
+def optical_flow_from_camera_farneback2():
     cap = cv2.VideoCapture(0)
 
     cap.set(3, 640)
@@ -132,10 +131,12 @@ def optical_flow_from_camera_farneback():
     hsv[..., 1] = 255
 
     while True:
-        ret, frame2 = cap.read()
-        frame2 = cv2.flip(frame2, 1)
-
-        cv2.imshow('frame1', frame2)
+        try:
+            ret, frame2 = cap.read()
+            frame2 = cv2.flip(frame2, 1)
+        except Exception:
+            break
+            pass
 
         next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
         flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 15, 3, 5, 1.2, 1)
@@ -144,7 +145,9 @@ def optical_flow_from_camera_farneback():
         hsv[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
         rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
-        cv2.imshow('frame2', rgb)
+        result = np.concatenate((frame2, rgb), axis=1)
+        cv2.imshow('result', result)
+
         if cv2.waitKey(1) & 0xff == "q":
             break
         prvs = next
@@ -156,6 +159,105 @@ def optical_flow_from_camera_farneback():
     pass
 
 
+def optical_flow_from_camera_farneback(flip=True, resize=True):
+    # cap = cv2.VideoCapture('test.mp4')
+    cap = cv2.VideoCapture('test2.ts')
+    # cap = cv2.VideoCapture('eccv.avi')
+    # cap = cv2.VideoCapture(0)
+
+    width = 640
+    height = 480
+    cap.set(3, width)
+    cap.set(4, height)
+
+    ret, frame1 = cap.read()
+    if flip:
+        frame1 = cv2.flip(frame1, 1)
+    if resize:
+        frame1 = cv2.resize(frame1, (width, height), interpolation=cv2.INTER_CUBIC)
+    prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    hsv = np.zeros_like(frame1)
+    hsv[..., 1] = 255
+
+    while True:
+        try:
+            ret, frame2 = cap.read()
+            if flip:
+                frame2 = cv2.flip(frame2, 1)
+            if resize:
+                frame2 = cv2.resize(frame2, (width, height), interpolation=cv2.INTER_CUBIC)
+            cv2.imshow('frame1', frame2)
+        except Exception:
+            break
+            pass
+
+        next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+        flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 20, 3, 5, 1.2, 1)
+        mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+        hsv[..., 0] = ang * 180 / np.pi / 2
+        hsv[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+        rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+        cv2.imshow('frame2', rgb)
+
+        result = np.concatenate((frame2, rgb), axis=1)
+        cv2.imshow('result', result)
+
+        if cv2.waitKey(1) & 0xff == "q":
+            break
+        prvs = next
+        pass
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    pass
+
+
+def optical_flow_from_camera_farneback_and_write_video():
+    cap = cv2.VideoCapture('eccv.avi')
+
+    width = 640
+    height = 480
+    cap.set(3, width)
+    cap.set(4, height)
+
+    ret, frame1 = cap.read()
+    prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    hsv = np.zeros_like(frame1)
+    hsv[..., 1] = 255
+
+    i = 0
+
+    while True:
+        try:
+            ret, frame2 = cap.read()
+
+            next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+            flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 20, 3, 5, 1.2, 1)
+            mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+            hsv[..., 0] = ang * 180 / np.pi / 2
+            hsv[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+            rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+            result = np.concatenate((frame2, rgb), axis=1)
+            cv2.imshow('result', result)
+
+            i += 1
+            cv2.imwrite("{}/{}.jpg".format("eccv", str(i)), result)
+
+            if cv2.waitKey(1) & 0xff == "q":
+                break
+            prvs = next
+        except Exception:
+            break
+        pass
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pass
+
+
 if __name__ == '__main__':
-    optical_flow_from_camera_farneback()
+    optical_flow_from_camera_farneback2()
     pass

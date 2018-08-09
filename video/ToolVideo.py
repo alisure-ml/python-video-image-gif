@@ -75,4 +75,14 @@ def images_to_video(video_folder, first_frame, last_frame, rep=5, result_filenam
 if __name__ == "__main__":
 
     # video_to_images("test/test.mp4")
-    images_to_video("../plt/bear/bottom", 0, 7, 5)
+    # images_to_video("../plt/bear/bottom", 0, 7, 5)
+
+    # image_path = "./eccv"
+    # image_file = os.listdir(image_path)
+    # for image_file_one in image_file:
+    #     image_file_one_new = image_file_one.split("g")[1].split(".")[0]
+    #     image_file_one_new = "" + str(int(image_file_one_new)) + ".jpg"
+    #     os.rename(os.path.join(image_path, image_file_one), os.path.join(image_path, image_file_one_new))
+    #     pass
+
+    images_to_video("../opencv/optical_flow/eccv", 1, 200, 1)
