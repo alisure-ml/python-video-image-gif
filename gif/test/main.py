@@ -6,6 +6,6 @@ if __name__ == "__main__":
     img_dir = "img/"
     gif_dir = "gif/test_main.gif"
 
-    tg(img_dir, gif_dir, sort=sg.compare_filename, duration=0.2)
+    tg(img_dir, gif_dir, sort=sg.compare_ctime, duration=0.2)
 
     pass

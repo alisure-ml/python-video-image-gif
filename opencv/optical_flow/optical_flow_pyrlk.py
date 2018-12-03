@@ -215,7 +215,8 @@ def optical_flow_from_camera_farneback(flip=True, resize=True):
 
 
 def optical_flow_from_camera_farneback_and_write_video():
-    cap = cv2.VideoCapture('eccv.avi')
+    # cap = cv2.VideoCapture('eccv.avi')
+    cap = cv2.VideoCapture('test2.ts')
 
     width = 640
     height = 480
@@ -223,6 +224,8 @@ def optical_flow_from_camera_farneback_and_write_video():
     cap.set(4, height)
 
     ret, frame1 = cap.read()
+
+    frame1 = cv2.resize(frame1, (width, height), interpolation=cv2.INTER_CUBIC)
     prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
     hsv = np.zeros_like(frame1)
     hsv[..., 1] = 255
@@ -232,6 +235,7 @@ def optical_flow_from_camera_farneback_and_write_video():
     while True:
         try:
             ret, frame2 = cap.read()
+            frame2 = cv2.resize(frame2, (width, height), interpolation=cv2.INTER_CUBIC)
 
             next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
             flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 20, 3, 5, 1.2, 1)
@@ -244,7 +248,7 @@ def optical_flow_from_camera_farneback_and_write_video():
             cv2.imshow('result', result)
 
             i += 1
-            cv2.imwrite("{}/{}.jpg".format("eccv", str(i)), result)
+            cv2.imwrite("{}/{}.jpg".format("test2", str(i)), result)
 
             if cv2.waitKey(1) & 0xff == "q":
                 break
@@ -259,5 +263,5 @@ def optical_flow_from_camera_farneback_and_write_video():
 
 
 if __name__ == '__main__':
-    optical_flow_from_camera_farneback2()
+    optical_flow_from_camera_farneback_and_write_video()
     pass
