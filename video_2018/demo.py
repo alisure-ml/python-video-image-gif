@@ -1,15 +1,12 @@
 import os
 import cv2
-from ToolVideo import video_to_images, images_to_video, video_to_images_to_video
+from ToolVideo import video_to_images, images_to_video, video_to_images_to_video, crop_video
 
 video_orig_path = "/home/ubuntu/data1.5TB/video"
 video_deal_path = "/home/ubuntu/data1.5TB/video/video_deal"
 
 all_video_orig = [os.path.join(video_orig_path, video_orig)
                   for video_orig in os.listdir(video_orig_path) if ".mp4" in video_orig]
-for video in all_video_orig:
-    # print(video)
-    pass
 
 
 # 得到视频的第一帧
@@ -105,14 +102,22 @@ def tran_video_long(video_file_name):
 
 
 # video_to_image("/media/ubuntu/数据/show/video", "/media/ubuntu/数据/show/image")
+# video_to_image("/home/ubuntu/data1.5TB/video/video_deal/show", "/home/ubuntu/data1.5TB/video/video_deal/show2")
 def video_to_image(video_dir, result_dir):
-    video_file_names = [os.path.join(video_dir, file_name) for file_name in  os.listdir(video_dir)]
+    video_file_names = [os.path.join(video_dir, file_name) for file_name in os.listdir(video_dir)]
     for file_name in video_file_names:
         video_to_images(file_name,
                         result_path=os.path.join(result_dir, os.path.splitext(os.path.basename(file_name))[0]))
     pass
 
 
+# crop_video("/home/ubuntu/data1.5TB/video/video_deal/show/20180707_20180707091950_20180707092036_092247.avi",
+#                "/home/ubuntu/data1.5TB/video/video_deal/show/20180707_20180707091950_20180707092036_092247_crop.avi",
+#                crop_area=list([250, 50, 600, 400]))
+def video_crop(video_path, crop_result_video, crop_area):
+    crop_video(video_path, crop_result_video, crop_area)
+    pass
+
 if __name__ == '__main__':
-    video_to_image("/media/ubuntu/数据/show/video", "/media/ubuntu/数据/show/image")
+    images_to_video("/home/ubuntu/data1.5TB/video/video_deal/face/20181009_20181009090613_20181009090627_090339", 0, 339, rep=1)
     pass

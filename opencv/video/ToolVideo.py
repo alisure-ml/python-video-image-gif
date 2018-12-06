@@ -126,6 +126,60 @@ def video_to_images_to_video(video_filename, result_filename):
     return count
 
 
+def crop_video(video_filename, result_filename, crop_area):
+
+    # capture the video
+    vid_cap = cv2.VideoCapture(video_filename)
+    total_frame = int(vid_cap.get(cv2.CAP_PROP_FRAME_COUNT))  # 可能不准
+
+    # start processing
+    print("There are {} frames in the video {}".format(total_frame, video_filename))
+    count = 1
+    ret, frame = vid_cap.read()
+    if ret:
+        height, width, layers = frame.shape
+        crop_width = crop_area[2] - crop_area[0]
+        crop_height = crop_area[3] - crop_area[1]
+        if height < crop_height or width < crop_width or crop_area[0] < 0\
+                or crop_area[2] < 0 or crop_area[1] >= width or crop_area[3] >= height:
+            raise Exception("height < crop_height or width < crop_width")
+            pass
+
+        # initiate the video with width, height and pfs = 25
+        four_cc = cv2.VideoWriter_fourcc(*"XVID")  # avi
+        # four_cc = cv2.VideoWriter_fourcc(*"mp4v")  # mp4
+        video = cv2.VideoWriter(result_filename, four_cc, 25, (crop_width, crop_height))
+        video.write(frame)
+
+        while True:
+            ret, frame = vid_cap.read()
+            if ret:
+
+                frame = frame[crop_area[1]:crop_area[3], crop_area[0]:crop_area[2], :]
+                video.write(frame)
+                count += 1
+
+                if cv2.waitKey(1) & 0xff == "q":
+                    break
+            else:
+                break
+
+            # print the progress bar
+            if count % 10 == 0:
+                print("Done {}/{}".format(count, total_frame))
+
+            if count == 26 * 10:
+                break
+
+            pass
+
+    cv2.destroyAllWindows()
+    vid_cap.release()
+    print("Done 100%")
+
+    return count
+
+
 if __name__ == "__main__":
 
     # video_to_images("test/test.mp4")
