@@ -62,8 +62,8 @@ def images_to_video(video_folder, first_frame, last_frame, rep=5, images=None, r
         height, width, layers = images[0].shape
 
     # initiate the video with width, height and pfs = 25
-    four_cc = cv2.VideoWriter_fourcc(*"XVID")  # avi
-    # four_cc = cv2.VideoWriter_fourcc(*"mp4v")  # mp4
+    # four_cc = cv2.VideoWriter_fourcc(*"XVID")  # avi
+    four_cc = cv2.VideoWriter_fourcc(*"mp4v")  # mp4
     video = cv2.VideoWriter(result_filename, four_cc, 25, (width, height))
 
     total_frame = last_frame - first_frame + 1 if images is None else len(images)
@@ -192,5 +192,7 @@ if __name__ == "__main__":
     #     image_file_one_new = "" + str(int(image_file_one_new)) + ".jpg"
     #     os.rename(os.path.join(image_path, image_file_one), os.path.join(image_path, image_file_one_new))
     #     pass
-
-    images_to_video("../opencv/optical_flow/test2", 1, 2600, 1)
+    # video_to_images("/home/ubuntu/PycharmProjects/ALISURE/opticalflow/flownet2-pytorch/chen/chenlaoshi.avi", True,
+    #                 result_path="/home/ubuntu/PycharmProjects/ALISURE/opticalflow/flownet2-pytorch/chen/image")
+    images_to_video("/home/ubuntu/PycharmProjects/ALISURE/opticalflow/flownet2-pytorch/chen/run-video3", 0, 373, 1,
+                    result_filename="/home/ubuntu/PycharmProjects/ALISURE/opticalflow/flownet2-pytorch/chen/chenlaoshi_3.mp4")

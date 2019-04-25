@@ -1,6 +1,8 @@
 import cv2
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("/home/ubuntu/data1.5TB/异常dataset/DAVIS/DAVIS-2017-TrainVal.mp4")
+
+# cap = cv2.VideoCapture(0)
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 background_sub_tractor_mog2 = cv2.createBackgroundSubtractorMOG2()
 

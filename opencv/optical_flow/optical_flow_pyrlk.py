@@ -3,15 +3,13 @@ import cv2
 
 
 def optical_flow_from_video():
-    cap = cv2.VideoCapture('test.mp4')
+    cap = cv2.VideoCapture("/home/ubuntu/data1.5TB/异常dataset/Avenue_dataset/training_videos/01.avi")
 
     # 设置 ShiTomasi 角点检测的参数
-    feature_params = dict(maxCorners=100, qualityLevel=0.3,
-                          minDistance=7, blockSize=7)
+    feature_params = dict(maxCorners=100, qualityLevel=0.3, minDistance=7, blockSize=7)
     # 设置 lucas kanade 光流场的参数
     # maxLevel 为使用图像金字塔的层数
-    lk_params = dict(winSize=(15, 15), maxLevel=2,
-                     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
     # 产生随机的颜色值
     color = np.random.randint(0, 255, (100, 3))
 
@@ -161,8 +159,8 @@ def optical_flow_from_camera_farneback2():
 
 def optical_flow_from_camera_farneback(flip=True, resize=True):
     # cap = cv2.VideoCapture('test.mp4')
-    cap = cv2.VideoCapture('test2.ts')
-    # cap = cv2.VideoCapture('eccv.avi')
+    # cap = cv2.VideoCapture('test2.ts')
+    cap = cv2.VideoCapture("/home/ubuntu/data1.5TB/异常dataset/Avenue_dataset/training_videos/01.avi")
     # cap = cv2.VideoCapture(0)
 
     width = 640
@@ -215,8 +213,7 @@ def optical_flow_from_camera_farneback(flip=True, resize=True):
 
 
 def optical_flow_from_camera_farneback_and_write_video():
-    # cap = cv2.VideoCapture('eccv.avi')
-    cap = cv2.VideoCapture('test2.ts')
+    cap = cv2.VideoCapture('eccv.avi')
 
     width = 640
     height = 480
@@ -224,8 +221,6 @@ def optical_flow_from_camera_farneback_and_write_video():
     cap.set(4, height)
 
     ret, frame1 = cap.read()
-
-    frame1 = cv2.resize(frame1, (width, height), interpolation=cv2.INTER_CUBIC)
     prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
     hsv = np.zeros_like(frame1)
     hsv[..., 1] = 255
@@ -235,7 +230,6 @@ def optical_flow_from_camera_farneback_and_write_video():
     while True:
         try:
             ret, frame2 = cap.read()
-            frame2 = cv2.resize(frame2, (width, height), interpolation=cv2.INTER_CUBIC)
 
             next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
             flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 20, 3, 5, 1.2, 1)
@@ -248,7 +242,7 @@ def optical_flow_from_camera_farneback_and_write_video():
             cv2.imshow('result', result)
 
             i += 1
-            cv2.imwrite("{}/{}.jpg".format("test2", str(i)), result)
+            cv2.imwrite("{}/{}.jpg".format("eccv", str(i)), result)
 
             if cv2.waitKey(1) & 0xff == "q":
                 break
@@ -262,6 +256,62 @@ def optical_flow_from_camera_farneback_and_write_video():
     pass
 
 
+def optical_flow_from_camera_farneback_2(flip=False, resize=True):
+    # cap = cv2.VideoCapture('test.mp4')
+    # cap = cv2.VideoCapture('test2.ts')
+    cap = cv2.VideoCapture("/home/ubuntu/data1.5TB/异常dataset/ShanghaiTech/train/01_001.avi")
+    # cap = cv2.VideoCapture(0)
+
+    width = 800
+    height = 500
+    cap.set(3, width)
+    cap.set(4, height)
+
+    ret, frame1 = cap.read()
+    if flip:
+        frame1 = cv2.flip(frame1, 1)
+    if resize:
+        frame1 = cv2.resize(frame1, (width, height), interpolation=cv2.INTER_CUBIC)
+    prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    hsv = np.zeros_like(frame1)
+    hsv[..., 1] = 255
+
+    while True:
+        try:
+            ret, frame2 = cap.read()
+            if flip:
+                frame2 = cv2.flip(frame2, 1)
+            if resize:
+                frame2 = cv2.resize(frame2, (width, height), interpolation=cv2.INTER_CUBIC)
+            cv2.imshow('frame1', frame2)
+        except Exception:
+            break
+            pass
+
+        next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+        flow = cv2.calcOpticalFlowFarneback(prvs, next, None, pyr_scale=0.5, levels=3, winsize=8,
+                                            iterations=5, poly_n=5, poly_sigma=1.2, flags=1)
+        mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+        hsv[..., 0] = ang * 180 / np.pi / 2
+        hsv[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+        rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+        cv2.imshow('frame2', rgb)
+
+        result = np.concatenate((frame2, rgb), axis=1)
+        cv2.imshow('result', result)
+
+        if cv2.waitKey(100) & 0xff == "q":
+            break
+        prvs = next
+        pass
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    pass
+
+
 if __name__ == '__main__':
-    optical_flow_from_camera_farneback_and_write_video()
+    optical_flow_from_camera_farneback_2()
     pass
