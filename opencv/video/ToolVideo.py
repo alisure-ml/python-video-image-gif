@@ -168,9 +168,6 @@ def crop_video(video_filename, result_filename, crop_area):
             if count % 10 == 0:
                 print("Done {}/{}".format(count, total_frame))
 
-            if count == 26 * 10:
-                break
-
             pass
 
     cv2.destroyAllWindows()
