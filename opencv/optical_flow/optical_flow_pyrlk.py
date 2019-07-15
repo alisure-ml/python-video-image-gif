@@ -213,7 +213,8 @@ def optical_flow_from_camera_farneback(flip=True, resize=True):
 
 
 def optical_flow_from_camera_farneback_and_write_video():
-    cap = cv2.VideoCapture('eccv.avi')
+    # cap = cv2.VideoCapture('eccv.avi')
+    cap = cv2.VideoCapture('./yaogan/chen_1.mp4')
 
     width = 640
     height = 480
@@ -221,6 +222,8 @@ def optical_flow_from_camera_farneback_and_write_video():
     cap.set(4, height)
 
     ret, frame1 = cap.read()
+
+    frame1 = cv2.resize(frame1, (width, height), interpolation=cv2.INTER_CUBIC)
     prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
     hsv = np.zeros_like(frame1)
     hsv[..., 1] = 255
@@ -230,6 +233,7 @@ def optical_flow_from_camera_farneback_and_write_video():
     while True:
         try:
             ret, frame2 = cap.read()
+            frame2 = cv2.resize(frame2, (width, height), interpolation=cv2.INTER_CUBIC)
 
             next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
             flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 20, 3, 5, 1.2, 1)
@@ -242,7 +246,66 @@ def optical_flow_from_camera_farneback_and_write_video():
             cv2.imshow('result', result)
 
             i += 1
-            cv2.imwrite("{}/{}.jpg".format("eccv", str(i)), result)
+            cv2.imwrite("{}/{}.jpg".format("test2", str(i)), result)
+
+            if cv2.waitKey(1) & 0xff == "q":
+                break
+            prvs = next
+        except Exception:
+            break
+        pass
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pass
+
+
+def optical_flow_farneback_and_write_video():
+
+    def crop(frame):
+        # start_x = 1400
+        # end_x = start_x + 600
+        # start_y = 100
+        # end_y = start_y + 700
+        start_x = 800
+        end_x = start_x + 500
+        start_y = 1500
+        end_y = start_y + 500
+        return frame[start_x:end_x, start_y: end_y]
+
+    cap = cv2.VideoCapture('./yaogan/chen_1.mp4')
+
+    ret, frame1 = cap.read()
+    frame1 = crop(frame1)
+
+    prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    hsv = np.zeros_like(frame1)
+    hsv[..., 1] = 255
+
+    i = 0
+
+    while True:
+        try:
+            ret, frame2 = cap.read()
+
+            i += 1
+            if i % 2 != 0:
+                continue
+
+            frame2 = crop(frame2)
+
+            next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+            flow = cv2.calcOpticalFlowFarneback(prvs, next, None, pyr_scale=0.5, levels=3,
+                                                winsize=7, iterations=3, poly_n=5, poly_sigma=1.2, flags=1)
+            mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+            hsv[..., 0] = ang * 180 / np.pi / 2
+            hsv[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+            rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+            result = np.concatenate((frame2, rgb), axis=1)
+            cv2.imshow('result', result)
+
+            cv2.imwrite("{}/{}.jpg".format("test2", str(i // 3)), result)
 
             if cv2.waitKey(1) & 0xff == "q":
                 break
@@ -313,5 +376,5 @@ def optical_flow_from_camera_farneback_2(flip=False, resize=True):
 
 
 if __name__ == '__main__':
-    optical_flow_from_camera_farneback_2()
+    optical_flow_farneback_and_write_video()
     pass
