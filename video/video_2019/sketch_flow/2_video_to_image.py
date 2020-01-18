@@ -7,8 +7,11 @@ import cv2
 from alisuretool.Tools import Tools
 from ToolVideo import video_to_images, images_to_video, video_to_images_to_video
 
-input_path = "/home/ubuntu/data1.5TB/video/video_deal/sketch_flow/video"
-result_path = Tools.new_dir("/home/ubuntu/data1.5TB/video/video_deal/sketch_flow/image")
+# input_path = "/home/ubuntu/data1.5TB/video/video_deal/sketch_flow/video"
+# result_path = Tools.new_dir("/home/ubuntu/data1.5TB/video/video_deal/sketch_flow/image")
+
+input_path = "/home/ubuntu/data1.5TB/video/video_deal/sketch_flow_2/video"
+result_path = Tools.new_dir("/home/ubuntu/data1.5TB/video/video_deal/sketch_flow_2/ok_image")
 
 video_file_path = [os.path.join(input_path, video_file) for video_file in os.listdir(input_path)]
 
